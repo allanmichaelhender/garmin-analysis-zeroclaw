@@ -23,8 +23,6 @@ services:
       dockerfile: Dockerfile
     container_name: zeroclaw
     restart: unless-stopped
-    entrypoint: []
-    command: ["zeroclaw", "daemon"]
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
