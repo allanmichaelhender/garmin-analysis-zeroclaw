@@ -1,0 +1,64 @@
+{
+  "components": {
+    "channel:discord": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:44:47.214128444+00:00",
+      "restart_count": 54,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:44:47.214123893+00:00"
+    },
+    "channel:discord_history": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:44:47.441916752+00:00",
+      "restart_count": 54,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:44:47.441912112+00:00"
+    },
+    "channels": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:42:37.825830323+00:00",
+      "restart_count": 0,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:42:37.825825842+00:00"
+    },
+    "daemon": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:42:37.601683076+00:00",
+      "restart_count": 0,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:42:37.601675045+00:00"
+    },
+    "gateway": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:42:37.683040268+00:00",
+      "restart_count": 0,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:42:37.683038228+00:00"
+    },
+    "heartbeat": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:42:37.602656153+00:00",
+      "restart_count": 0,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:42:37.602652012+00:00"
+    },
+    "mqtt": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:42:37.602542382+00:00",
+      "restart_count": 0,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:42:37.602535911+00:00"
+    },
+    "scheduler": {
+      "last_error": null,
+      "last_ok": "2026-05-11T09:44:37.618552274+00:00",
+      "restart_count": 0,
+      "status": "ok",
+      "updated_at": "2026-05-11T09:44:37.618548103+00:00"
+    }
+  },
+  "pid": 1,
+  "updated_at": "2026-05-11T09:44:47.592530618+00:00",
+  "uptime_seconds": 130,
+  "written_at": "2026-05-11T09:44:47.592554450+00:00"
+}
