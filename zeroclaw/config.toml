@@ -649,7 +649,7 @@ completed_sections = []
 
 [notion]
 enabled = false
-api_key = ""
+api_key = "${ANTHROPIC_API_KEY}"
 database_id = ""
 poll_interval_secs = 5
 status_property = "Status"

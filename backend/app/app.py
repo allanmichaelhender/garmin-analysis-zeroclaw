@@ -3,7 +3,7 @@
 import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import Response
-from app.mcp_tools import http_app, sse_app
+from app.mcp.mcp import http_app, sse_app
 
 # Configure logging
 logging.basicConfig(

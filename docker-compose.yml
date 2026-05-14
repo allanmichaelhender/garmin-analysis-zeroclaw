@@ -10,6 +10,7 @@ services:
       - GARMIN_EMAIL=${GARMIN_EMAIL}
       - GARMIN_PASSWORD=${GARMIN_PASSWORD}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - PYTHONDONTWRITEBYTECODE=1
     volumes:
       - ./backend:/app
     networks:

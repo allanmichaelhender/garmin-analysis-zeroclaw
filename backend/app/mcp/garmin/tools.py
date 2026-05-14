@@ -2,6 +2,7 @@
 
 import logging
 import os
+import json
 from datetime import datetime
 from app.clients.garmin import GarminClient
 from app.core.database import SessionLocal
@@ -20,6 +21,35 @@ def register_tools(mcp):
         result = f"Echo: {message}"
         logger.info(f"🔧 TOOL RESULT: echo -> '{result}'")
         return result
+
+    @mcp.tool()
+    def get_hr_10sec_averages() -> str:
+        """Get 10-second heart rate averages for interval detection testing.
+
+        Returns:
+            JSON string containing activity info and 10-second HR averages
+        """
+        logger.info("🔧 TOOL CALL: get_hr_10sec_averages()")
+        
+        try:
+            # Read the HR data file
+            data_file = '/app/scripts/hr_10sec_data.json'
+            if not os.path.exists(data_file):
+                logger.error(f"HR data file not found at {data_file}")
+                return f"HR data file not found at {data_file}"
+            
+            with open(data_file, 'r') as f:
+                data = json.load(f)
+            
+            # Format the data for the agent
+            result = json.dumps(data, indent=2)
+            logger.info(f"🔧 TOOL RESULT: get_hr_10sec_averages -> {len(data['hr_10sec_avgs'])} averages")
+            return result
+
+        except Exception as e:
+            error_msg = f"Failed to get HR 10-second averages: {str(e)}"
+            logger.error(error_msg)
+            return error_msg
 
     @mcp.tool()
     def get_garmin_data(date: str = "today") -> str:
