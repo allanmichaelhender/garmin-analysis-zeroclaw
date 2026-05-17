@@ -180,6 +180,27 @@ url = "http://backend:8000/mcp" # backend is the service name
 
 **Fix**: Consolidate to single FastMCP instance per server.
 
+### Error: "Wrong MCP tools visible" or "Cached tool list"
+
+**Symptoms**:
+
+- HTTP transport shows different tools than expected
+- Tool changes don't appear in HTTP transport
+- "Cached" behavior persists across rebuilds
+
+**Cause**: `app.py` importing from wrong MCP module (monolithic vs modular)
+
+**Fix**: Ensure `app.py` imports from the correct module:
+```python
+# CORRECT - imports from modular structure
+from app.mcp.mcp import http_app, sse_app
+
+# WRONG - imports from old monolithic file
+from app.mcp_tools import http_app, sse_app
+```
+
+This was a critical bug where the HTTP transport was serving tools from an old monolithic `mcp_tools.py` file instead of the modular `mcp.mcp` structure, causing tool lists to appear "cached" or out of sync with code changes.
+
 ### Error: "Tool execution denied"
 
 **Symptoms**:
