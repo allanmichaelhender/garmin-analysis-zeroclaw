@@ -123,8 +123,8 @@ docker compose logs zeroclaw | grep -i "mcp\|tool"
 # backend  | 🔧 TOOL CALL: echo(message='hello')
 # backend  | 🔧 TOOL RESULT: echo -> 'Echo: hello'
 # backend  | 🟢 RESPONSE: 200
-# zeroclaw  | MCP server `garmin` connected — 4 tool(s) available
-# zeroclaw  | Gateway MCP: 4 tool(s) registered from 1 server(s)
+# zeroclaw  | MCP server `garmin` connected — 9 tool(s) available
+# zeroclaw  | Gateway MCP: 9 tool(s) registered from 1 server(s)
 ```
 
 ### Testing MCP Tools
@@ -155,10 +155,15 @@ auto_approve = [
   "file_read", "memory_recall", "web_search_tool", "web_fetch",
   "calculator", "glob_search", "content_search", "image_info",
   "weather", "browser", "browser_open",
-  "garmin__echo",                    # ✅ Garmin MCP tools
-  "garmin__get_recent_activities",   # ✅
-  "garmin__get_garmin_data",         # ✅
-  "garmin__analyze_activity"         # ✅
+  "garmin__echo",                      # ✅ Garmin MCP tools
+  "garmin__get_recent_activities",     # ✅
+  "garmin__get_garmin_data",           # ✅
+  "garmin__analyze_activity",          # ✅
+  "garmin__get_hr_10sec_averages",     # ✅
+  "garmin__sync_garmin_activities",    # ✅
+  "garmin__get_pending_metadata",      # ✅
+  "garmin__save_workout_metadata",     # ✅
+  "garmin__detect_activity_intervals"   # ✅
 ]
 ```
 

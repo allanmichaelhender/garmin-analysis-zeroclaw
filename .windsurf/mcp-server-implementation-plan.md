@@ -71,13 +71,14 @@ Implementation plan for building a Model Context Protocol (MCP) server that expo
 
 ### 2.2 MCP Tool Development
 
-- [x] Create modular MCP tool structure with 8 tools organized by category:
+- [x] Create modular MCP tool structure with 9 tools organized by category:
   - **Garmin tools** (app/mcp/garmin/tools.py):
     - `echo` - Test tool for debugging
     - `get_garmin_data` - Get activity data by date
     - `analyze_activity` - Analyze specific activity
     - `get_recent_activities` - Get recent Garmin activities
     - `sync_garmin_activities` - Sync activities from Garmin Connect
+    - `get_hr_10sec_averages` - Get 10-second heart rate averages for interval detection
   - **Workout tools** (app/mcp/workout/tools.py):
     - `get_pending_metadata` - Get activities needing metadata
     - `save_workout_metadata` - Save workout metadata (RPE, feeling, session structure)
@@ -85,6 +86,7 @@ Implementation plan for building a Model Context Protocol (MCP) server that expo
     - `detect_activity_intervals` - Detect workout intervals using CPD
   - [x] Add logging to all tool functions for debugging
 - [x] Create main MCP orchestrator in app/mcp/mcp.py
+- [x] Fix app.py to import from mcp.mcp instead of monolithic mcp_tools.py
 
 ### 2.3 Garmin API Integration
 
@@ -171,6 +173,8 @@ Implementation plan for building a Model Context Protocol (MCP) server that expo
 
 6. **Container Networking**: Use service names (`backend:8000`) in configs, not `localhost:8000`.
 
+7. **Wrong Import in app.py**: **CRITICAL** - app.py must import from the modular mcp.mcp, not from a monolithic mcp_tools.py file. This was a major bug where the HTTP transport was serving tools from the wrong file, causing "cached" tool list behavior.
+
 ### Debugging Checklist
 
 When MCP connections fail:
@@ -186,7 +190,7 @@ When MCP connections fail:
 
 - ✅ Basic MCP server infrastructure working
 - ✅ HTTP transport connection to ZeroClaw established
-- ✅ 8 MCP tools implemented and registered with logging (modular structure)
+- ✅ 9 MCP tools implemented and registered with logging (modular structure)
 - ✅ Docker deployment functional
 - ✅ Request/response logging middleware implemented
 - ✅ Tool-level logging for debugging
@@ -201,6 +205,10 @@ When MCP connections fail:
 - ✅ Modular MCP architecture with separate tool modules (garmin, workout, analysis)
 - ✅ Database initialization via Alembic migrations
 - ✅ Tool execution testing in progress (requires user approval in ZeroClaw)
+- ✅ Fixed app.py import to use modular mcp.mcp instead of monolithic mcp_tools.py
+- ✅ Added get_hr_10sec_averages tool for interval detection testing
+- ✅ Removed hardcoded secrets from config.toml, using environment variables
+- ✅ Added PYTHONDONTWRITEBYTECODE=1 to prevent Python bytecode cache issues
 
 **Next Priority**: Implement additional MCP tools for advanced analysis and LLM integration.
 

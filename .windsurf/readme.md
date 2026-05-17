@@ -4,12 +4,13 @@ A Model Context Protocol (MCP) server that exposes Garmin Connect fitness data a
 
 ## Features
 
-- **8 MCP Tools**: Get activities, details, heart rate data, analysis, workout metadata, interval detection, and more
+- **9 MCP Tools**: Get activities, details, heart rate data, analysis, workout metadata, interval detection, 10-second HR averages, and more
 - **FastAPI + FastMCP**: Modern Python web framework with MCP protocol support
 - **PostgreSQL Database**: Stores activities, heart rate data, workout metadata, and activity intervals
 - **ZeroClaw Integration**: HTTP transport for agent runtime
 - **Docker Deployment**: Containerized with PostgreSQL and pgAdmin
 - **Modular Architecture**: Tools organized by category (Garmin, Workout, Analysis)
+- **Security**: Secrets managed via environment variables, no hardcoded credentials
 
 ## Architecture
 
@@ -40,13 +41,14 @@ garmin-analysis/
 3. `garmin__analyze_activity` - Analyze activity performance
 4. `garmin__get_recent_activities` - Get recent Garmin activities
 5. `garmin__sync_garmin_activities` - Sync new activities from Garmin Connect
+6. `garmin__get_hr_10sec_averages` - Get 10-second heart rate averages for interval detection
 
 ### Workout Tools
-6. `garmin__get_pending_metadata` - Get activities needing workout metadata
-7. `garmin__save_workout_metadata` - Save workout metadata (RPE, feeling, session structure)
+7. `garmin__get_pending_metadata` - Get activities needing workout metadata
+8. `garmin__save_workout_metadata` - Save workout metadata (RPE, feeling, session structure)
 
 ### Analysis Tools
-8. `garmin__detect_activity_intervals` - Detect workout intervals using changepoint detection
+9. `garmin__detect_activity_intervals` - Detect workout intervals using changepoint detection
 
 ## Quick Start
 
@@ -108,7 +110,7 @@ docker compose logs backend -f
 docker compose logs zeroclaw | grep -i "mcp\|tool"
 
 # Expected output:
-# MCP server `garmin` connected — 4 tool(s) available
+# MCP server `garmin` connected — 5 tool(s) available
 ```
 
 ### 4. Configure Tool Auto-Approval
@@ -123,6 +125,10 @@ auto_approve = [
   "garmin__get_recent_activities",
   "garmin__get_garmin_data",
   "garmin__analyze_activity",
+  "garmin__get_hr_10sec_averages",
+  "garmin__sync_garmin_activities",
+  "garmin__get_pending_metadata",
+  "garmin__save_workout_metadata",
   "garmin__detect_activity_intervals"
 ]
 ```
