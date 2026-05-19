@@ -99,77 +99,75 @@ class GarminClient:
             logger.error(f"Failed to fetch activity details: {e}")
             return {}
 
-    def get_activity_samples(self, activity_id: str) -> list[float]:
+    def get_activity_details_with_metrics(self, activity_id: str) -> dict | None:
         """
-        Fetch heart rate samples for a specific activity.
+        Fetch detailed activity data including 1-second metrics and return
+        structured data ready for storage.
 
         Args:
             activity_id: Garmin activity ID
 
         Returns:
-            List of heart rate values
+            Dict with 'activity_details' (raw API response) and 'metrics' (structured array),
+            or None if unavailable
         """
         if not self._authenticated:
             if not self.authenticate():
-                return []
+                return None
 
         try:
-            # Garmin Connect API for activity samples
-            # Try getting detailed activity data which includes samples
             details = self.client.get_activity_details(activity_id)
+            if not details:
+                logger.warning(f"No details returned for activity {activity_id}")
+                return None
 
-            # Extract heart rate from activityDetailMetrics
-            # Find the correct index for directHeartRate from metricDescriptors
-            if details and "activityDetailMetrics" in details and "metricDescriptors" in details:
-                # Find index of directHeartRate
-                hr_index = None
-                for descriptor in details["metricDescriptors"]:
-                    if descriptor.get("key") == "directHeartRate":
-                        hr_index = descriptor.get("metricsIndex")
-                        break
-                
-                if hr_index is None:
-                    logger.warning(f"directHeartRate not found in metricDescriptors for {activity_id}")
-                    return []
-                
-                hr_values = []
-                for metric in details["activityDetailMetrics"]:
-                    if "metrics" in metric and len(metric["metrics"]) > hr_index:
-                        # Extract heart rate at the correct index
-                        hr_value = metric["metrics"][hr_index]
-                        if hr_value is not None and hr_value > 0:
-                            # Filter out zero values and convert to int
-                            hr_values.append(int(hr_value))
+            result = {
+                "activity_details": details,
+                "metrics": [],
+            }
 
-                logger.info(f"Fetched {len(hr_values)} heart rate samples for activity {activity_id} (index {hr_index})")
-                return hr_values
-            else:
-                logger.warning(f"No activityDetailMetrics or metricDescriptors found for {activity_id}")
-                return []
+            if (
+                "activityDetailMetrics" not in details
+                or "metricDescriptors" not in details
+            ):
+                logger.warning(
+                    f"No metricDescriptors/activityDetailMetrics for {activity_id}"
+                )
+                return result
+
+            # Build metric key → index mapping
+            key_index = {}
+            for desc in details["metricDescriptors"]:
+                key = desc.get("key")
+                idx = desc.get("metricsIndex")
+                if key is not None and idx is not None:
+                    key_index[key] = idx
+
+            logger.info(f"Metric keys for {activity_id}: {list(key_index.keys())}")
+
+            # Extract metric values with timestamps
+            for entry in details["activityDetailMetrics"]:
+                if "metrics" not in entry:
+                    continue
+
+                sample = {}
+                if "startTimestamp" in entry:
+                    sample["timestamp"] = entry["startTimestamp"]  # epoch ms
+
+                for key, idx in key_index.items():
+                    if idx < len(entry["metrics"]):
+                        val = entry["metrics"][idx]
+                        if val is not None:
+                            sample[key] = val
+
+                if sample:
+                    result["metrics"].append(sample)
+
+            logger.info(
+                f"Extracted {len(result['metrics'])} metric samples for activity {activity_id}"
+            )
+            return result
 
         except Exception as e:
             logger.error(f"Failed to fetch activity samples: {e}")
-            return []
-
-    def get_heart_rate_data(self, activity_id: str) -> list[dict]:
-        """
-        Fetch heart rate data for a specific activity.
-
-        Args:
-            activity_id: Garmin activity ID
-
-        Returns:
-            List of heart rate data points
-        """
-        if not self._authenticated:
-            if not self.authenticate():
-                return []
-
-        try:
-            # Garmin Connect API for heart rate zones
-            hr_data = self.client.get_activity_hr_in_timezones(activity_id)
-            logger.info(f"Fetched heart rate data for activity {activity_id}")
-            return hr_data
-        except Exception as e:
-            logger.error(f"Failed to fetch heart rate data: {e}")
-            return []
+            return None

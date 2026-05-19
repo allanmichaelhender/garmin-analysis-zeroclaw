@@ -71,20 +71,11 @@ Implementation plan for building a Model Context Protocol (MCP) server that expo
 
 ### 2.2 MCP Tool Development
 
-- [x] Create modular MCP tool structure with 9 tools organized by category:
-  - **Garmin tools** (app/mcp/garmin/tools.py):
-    - `echo` - Test tool for debugging
-    - `get_garmin_data` - Get activity data by date
-    - `analyze_activity` - Analyze specific activity
-    - `get_recent_activities` - Get recent Garmin activities
-    - `sync_garmin_activities` - Sync activities from Garmin Connect
-    - `get_hr_10sec_averages` - Get 10-second heart rate averages for interval detection
-  - **Workout tools** (app/mcp/workout/tools.py):
-    - `get_pending_metadata` - Get activities needing metadata
-    - `save_workout_metadata` - Save workout metadata (RPE, feeling, session structure)
-  - **Analysis tools** (app/mcp/analysis/tools.py):
-    - `detect_activity_intervals` - Detect workout intervals using CPD
-  - [x] Add logging to all tool functions for debugging
+- [x] Create Garmin tools (app/mcp/garmin/tools.py):
+  - `echo` - Test tool for debugging
+  - `sync_garmin_activities` - Sync activities from Garmin Connect
+- [x] Removed workout and analysis tools (simplified to core sync + echo only)
+- [x] Add logging to all tool functions for debugging
 - [x] Create main MCP orchestrator in app/mcp/mcp.py
 - [x] Fix app.py to import from mcp.mcp instead of monolithic mcp_tools.py
 
@@ -190,13 +181,13 @@ When MCP connections fail:
 
 - ✅ Basic MCP server infrastructure working
 - ✅ HTTP transport connection to ZeroClaw established
-- ✅ 9 MCP tools implemented and registered with logging (modular structure)
+- ✅ 2 MCP tools (echo, sync_garmin_activities) — simplified from original 9
 - ✅ Docker deployment functional
 - ✅ Request/response logging middleware implemented
 - ✅ Tool-level logging for debugging
 - ✅ Garmin API client implemented with authentication
-- ✅ Activity ingestion script with pagination (100 activities ingested)
-- ✅ PostgreSQL database schema with activities, heart rate data, intervals, and workout metadata
+- ✅ Activity ingestion script with pagination
+- ✅ PostgreSQL database schema with activities table
 - ✅ Neon PostgreSQL database integration
 - ✅ pgAdmin service for database management
 - ✅ Changepoint detection service using ruptures library

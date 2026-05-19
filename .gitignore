@@ -5,6 +5,7 @@
 
 # ZeroClaw config (contains sensitive keys)
 zeroclaw/.secret_key
+zeroclaw/config.toml
 
 # Python
 __pycache__/

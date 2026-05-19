@@ -4,12 +4,11 @@ A Model Context Protocol (MCP) server that exposes Garmin Connect fitness data a
 
 ## Features
 
-- **9 MCP Tools**: Get activities, details, heart rate data, analysis, workout metadata, interval detection, 10-second HR averages, and more
+- **2 MCP Tools**: Sync Garmin activities from Connect to database, plus connectivity echo test
 - **FastAPI + FastMCP**: Modern Python web framework with MCP protocol support
-- **PostgreSQL Database**: Stores activities, heart rate data, workout metadata, and activity intervals
+- **PostgreSQL Database**: Stores activity data from Garmin Connect
 - **ZeroClaw Integration**: HTTP transport for agent runtime
 - **Docker Deployment**: Containerized with PostgreSQL and pgAdmin
-- **Modular Architecture**: Tools organized by category (Garmin, Workout, Analysis)
 - **Security**: Secrets managed via environment variables, no hardcoded credentials
 
 ## Architecture
@@ -35,20 +34,8 @@ garmin-analysis/
 
 ## MCP Tools
 
-### Garmin Tools
 1. `garmin__echo` - Test tool for MCP connectivity
-2. `garmin__get_garmin_data` - Retrieve Garmin data with filters
-3. `garmin__analyze_activity` - Analyze activity performance
-4. `garmin__get_recent_activities` - Get recent Garmin activities
-5. `garmin__sync_garmin_activities` - Sync new activities from Garmin Connect
-6. `garmin__get_hr_10sec_averages` - Get 10-second heart rate averages for interval detection
-
-### Workout Tools
-7. `garmin__get_pending_metadata` - Get activities needing workout metadata
-8. `garmin__save_workout_metadata` - Save workout metadata (RPE, feeling, session structure)
-
-### Analysis Tools
-9. `garmin__detect_activity_intervals` - Detect workout intervals using changepoint detection
+2. `garmin__sync_garmin_activities` - Sync new activities from Garmin Connect to the database
 
 ## Quick Start
 

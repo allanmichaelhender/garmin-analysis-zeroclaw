@@ -1,29 +1,43 @@
-"""Check database for HR data."""
+"""Check database for HR metrics data."""
 
 from app.core.database import SessionLocal
-from app.models.models import Activity, HeartRateData
+from app.models.models import Activity
 
 db = SessionLocal()
 
 try:
-    hr_count = db.query(HeartRateData).count()
-    print(f'Total HR data points: {hr_count}')
-    
-    if hr_count > 0:
-        activity_ids = db.query(HeartRateData.activity_id).distinct().all()
-        print(f'Activities with HR data: {[a[0] for a in activity_ids]}')
-        
-        # Get most recent activity with HR data
-        latest_activity_id = activity_ids[0][0]
-        activity = db.query(Activity).filter(Activity.id == latest_activity_id).first()
-        print(f'Most recent activity with HR: {activity.id} - {activity.activity_type} - {activity.start_time}')
+    # Count activities that have metrics_data
+    activities_with_metrics = (
+        db.query(Activity).filter(Activity.metrics_data.isnot(None)).count()
+    )
+    print(f"Activities with metrics data: {activities_with_metrics}")
+
+    if activities_with_metrics > 0:
+        metrics_activities = (
+            db.query(Activity)
+            .filter(Activity.metrics_data.isnot(None))
+            .order_by(Activity.start_time.desc())
+            .all()
+        )
+        for act in metrics_activities:
+            hr_count = sum(1 for m in act.metrics_data if m.get("directHeartRate"))
+            print(
+                f"  {act.id}: {act.activity_type} - {act.start_time} "
+                f"({hr_count} HR samples)"
+            )
     else:
-        print('No HR data in database')
-        
+        print("No metrics data found in database")
+
         # Get all activities
-        activities = db.query(Activity).order_by(Activity.start_time.desc()).limit(5).all()
-        print(f'Recent activities:')
+        activities = (
+            db.query(Activity).order_by(Activity.start_time.desc()).limit(5).all()
+        )
+        print(f"Recent activities:")
         for act in activities:
-            print(f'  {act.id}: {act.activity_type} - {act.start_time}')
+            has_metrics = "yes" if act.metrics_data else "no"
+            print(
+                f"  {act.id}: {act.activity_type} - {act.start_time} "
+                f"(metrics: {has_metrics})"
+            )
 finally:
     db.close()

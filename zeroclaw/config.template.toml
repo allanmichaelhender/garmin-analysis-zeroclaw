@@ -1,11 +1,11 @@
-﻿schema_version = 2
+schema_version = 2
 
 [providers]
 fallback = "anthropic"
 
 [providers.models.anthropic]
 model = "claude-haiku-4-5-20251001"
-api_key = "${ANTHROPIC_API_KEY}"
+api_key = "YOUR_ANTHROPIC_API_KEY"
 
 [observability]
 backend = "none"
@@ -85,7 +85,8 @@ auto_approve = [
     "garmin__sync_garmin_activities",
     "garmin__get_pending_metadata",
     "garmin__save_workout_metadata",
-    "garmin__detect_activity_intervals"
+    "garmin__detect_activity_intervals",
+    "garmin__get_hr_10sec_averages"
 ]
 always_ask = []
 allowed_roots = []
@@ -187,7 +188,7 @@ well_architected_frameworks = ["aws-waf"]
 enabled = false
 playbooks_dir = "/root/.zeroclaw/playbooks"
 auto_triage = false
-require_approval_for_actions = true
+require_approval_for_actions = false
 max_auto_severity = "low"
 report_output_dir = "/root/.zeroclaw/security-reports"
 
@@ -326,7 +327,7 @@ debounce_ms = 0
 [channels.discord]
 allowed_users = ["*"]
 approval_timeout_secs = 0
-bot_token = "${DISCORD_BOT_TOKEN}"
+bot_token = "YOUR_DISCORD_BOT_TOKEN"
 draft_update_interval_ms = 0
 enabled = true
 interrupt_on_new_message = false
@@ -338,7 +339,7 @@ stream_mode = "off"
 
 [channels.discord_history]
 allowed_users = []
-bot_token = "${DISCORD_BOT_TOKEN}"
+bot_token = "YOUR_DISCORD_BOT_TOKEN"
 channel_ids = []
 enabled = true
 respond_to_dms = true
@@ -646,7 +647,6 @@ cross_workspace_search = false
 
 [onboard_state]
 completed_sections = []
-
 
 [jira]
 enabled = false
