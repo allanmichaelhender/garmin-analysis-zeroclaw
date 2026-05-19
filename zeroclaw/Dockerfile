@@ -68,4 +68,4 @@ EXPOSE 8080
 
 # Run ZeroClaw with entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["zeroclaw", "gateway"]
+CMD ["zeroclaw", "daemon"]

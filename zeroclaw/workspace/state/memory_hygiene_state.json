@@ -1,8 +1,8 @@
 {
-  "last_run_at": "2026-05-11T09:40:51.907441530+00:00",
+  "last_run_at": "2026-05-19T10:51:01.038404005+00:00",
   "last_report": {
     "archived_memory_files": 0,
-    "archived_session_files": 0,
+    "archived_session_files": 3,
     "purged_memory_archives": 0,
     "purged_session_archives": 0,
     "pruned_conversation_rows": 0

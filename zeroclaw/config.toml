@@ -1,4 +1,4 @@
-schema_version = 2
+﻿schema_version = 2
 
 [providers]
 fallback = "anthropic"
@@ -405,7 +405,7 @@ provider = "none"
 [gateway]
 port = 42617
 host = "127.0.0.1"
-require_pairing = true
+require_pairing = false
 allow_public_bind = false
 paired_tokens = []
 pair_rate_limit_per_minute = 10
@@ -647,16 +647,6 @@ cross_workspace_search = false
 [onboard_state]
 completed_sections = []
 
-[notion]
-enabled = false
-api_key = "${ANTHROPIC_API_KEY}"
-database_id = ""
-poll_interval_secs = 5
-status_property = "Status"
-input_property = "Input"
-result_property = "Result"
-max_concurrent = 4
-recover_stale = true
 
 [jira]
 enabled = false
