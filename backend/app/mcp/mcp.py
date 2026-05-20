@@ -22,4 +22,6 @@ sse_app = mcp.http_app(path="/", transport="sse")
 # Register Garmin tool module
 garmin_tools.register_tools(mcp)
 
-logger.info("Registered MCP tools: echo, sync_garmin_activities")
+logger.info(
+    "Registered MCP tools: echo, sync_garmin_activities, update_workout_metadata, analyze_hr_profile"
+)

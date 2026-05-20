@@ -10,3 +10,4 @@ numpy>=1.24.0
 pandas>=2.0.0
 ruptures>=1.1.9
 matplotlib>=2.0.0
+anthropic>=0.49.0

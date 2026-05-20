@@ -15,5 +15,8 @@ fi
 if [ -n "${DISCORD_BOT_TOKEN}" ]; then
     sed -i "s|\${DISCORD_BOT_TOKEN}|${DISCORD_BOT_TOKEN}|g" /root/.zeroclaw/config.toml
 fi
+if [ -n "${DEEPSEEK_API_KEY}" ]; then
+    sed -i "s|\${DEEPSEEK_API_KEY}|${DEEPSEEK_API_KEY}|g" /root/.zeroclaw/config.toml
+fi
 
 exec "$@"

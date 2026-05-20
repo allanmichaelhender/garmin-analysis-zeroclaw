@@ -77,6 +77,28 @@ class GarminClient:
             logger.error(f"Failed to fetch activities: {e}")
             return []
 
+    def get_activity(self, activity_id: str) -> dict:
+        """
+        Fetch the summary for a single activity by ID.
+
+        Args:
+            activity_id: Garmin activity ID
+
+        Returns:
+            Activity summary dictionary
+        """
+        if not self._authenticated:
+            if not self.authenticate():
+                return {}
+
+        try:
+            summary = self.client.get_activity(activity_id)
+            logger.info(f"Fetched summary for activity {activity_id}")
+            return summary
+        except Exception as e:
+            logger.error(f"Failed to fetch activity {activity_id}: {e}")
+            return {}
+
     def get_activity_details(self, activity_id: str) -> dict:
         """
         Fetch detailed information for a specific activity.
@@ -98,6 +120,31 @@ class GarminClient:
         except Exception as e:
             logger.error(f"Failed to fetch activity details: {e}")
             return {}
+
+    def get_activity_splits(self, activity_id: str) -> dict | None:
+        """
+        Fetch split/interval data for a specific activity.
+
+        Splits represent laps or intervals within an activity, including
+        metrics like distance, duration, pace, heart rate, cadence, etc.
+
+        Args:
+            activity_id: Garmin activity ID
+
+        Returns:
+            Dict with split data from Garmin API, or None if unavailable
+        """
+        if not self._authenticated:
+            if not self.authenticate():
+                return None
+
+        try:
+            splits = self.client.get_activity_splits(activity_id)
+            logger.info(f"Fetched splits for activity {activity_id}")
+            return splits
+        except Exception as e:
+            logger.error(f"Failed to fetch activity splits: {e}")
+            return None
 
     def get_activity_details_with_metrics(self, activity_id: str) -> dict | None:
         """

@@ -10,6 +10,7 @@ services:
       - GARMIN_EMAIL=${GARMIN_EMAIL}
       - GARMIN_PASSWORD=${GARMIN_PASSWORD}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - PYTHONDONTWRITEBYTECODE=1
     volumes:
       - ./backend:/app
@@ -27,6 +28,7 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
     volumes:
       - ./zeroclaw:/root/.zeroclaw
       - zeroclaw-data:/root/.zeroclaw/data
@@ -51,7 +53,6 @@ services:
       - garmin-network
     ports:
       - "5050:80"
-
 
 networks:
   garmin-network:

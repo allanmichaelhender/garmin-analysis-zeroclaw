@@ -3,9 +3,15 @@
 .env.local
 .env.*.local
 
-# ZeroClaw config (contains sensitive keys)
+# ZeroClaw config and state (contains sensitive keys)
 zeroclaw/.secret_key
 zeroclaw/config.toml
+zeroclaw/daemon_state.json
+zeroclaw/workspace/**/*.db
+zeroclaw/workspace/**/*.db-shm
+zeroclaw/workspace/**/*.db-wal
+zeroclaw/workspace/**/*.jsonl
+backend/scripts/*.png
 
 # Python
 __pycache__/

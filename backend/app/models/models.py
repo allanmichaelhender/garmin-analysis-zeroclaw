@@ -35,6 +35,18 @@ class Activity(Base):
     metrics_data = Column(
         JSON, nullable=True
     )  # Store 1-second metrics (HR, timestamps, cadence, etc.)
+    splits_data = Column(
+        JSON, nullable=True
+    )  # Store activity splits/intervals from Garmin API
+    is_intervals = Column(
+        String, nullable=True
+    )  # "true" or "false" — whether workout is interval-based
+    workout_structure = Column(
+        String, nullable=True
+    )  # Description of workout structure
+    anthropic_hr_profile = Column(
+        String, nullable=True
+    )  # Anthropic-generated HR profile summary
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

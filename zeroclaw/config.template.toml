@@ -79,14 +79,9 @@ auto_approve = [
     "browser",
     "browser_open",
     "garmin__echo",
-    "garmin__get_recent_activities",
-    "garmin__get_garmin_data",
-    "garmin__analyze_activity",
     "garmin__sync_garmin_activities",
-    "garmin__get_pending_metadata",
-    "garmin__save_workout_metadata",
-    "garmin__detect_activity_intervals",
-    "garmin__get_hr_10sec_averages"
+    "garmin__update_workout_metadata",
+    "garmin__analyze_hr_profile"
 ]
 always_ask = []
 allowed_roots = []

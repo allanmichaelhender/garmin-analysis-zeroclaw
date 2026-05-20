@@ -22,7 +22,7 @@ def register_tools(mcp):
         return result
 
     @mcp.tool()
-    def sync_garmin_activities(limit: int = 50) -> str:
+    def sync_garmin_activities(limit: int = 20) -> str:
         """
         Sync new activities from Garmin Connect to the database.
 
@@ -60,6 +60,7 @@ def register_tools(mcp):
                 new_count = 0
                 updated_count = 0
                 metrics_count = 0
+                splits_count = 0
 
                 for raw_activity in activities:
                     activity_id = str(raw_activity.get("activityId", ""))
@@ -173,9 +174,31 @@ def register_tools(mcp):
                                 f"Failed to fetch metrics for {activity_id}: {me}"
                             )
 
+                    # Fetch splits data (separate API call per activity)
+                    try:
+                        splits = client.get_activity_splits(activity_id)
+                        if splits:
+                            record = (
+                                db.query(Activity)
+                                .filter(Activity.id == activity_id)
+                                .first()
+                            )
+                            if record:
+                                record.splits_data = splits
+                                db.commit()
+                                splits_count += 1
+                                logger.info(
+                                    f"Saved splits data for activity {activity_id}"
+                                )
+                    except Exception as se:
+                        logger.warning(
+                            f"Failed to fetch splits for {activity_id}: {se}"
+                        )
+
                 result = (
                     f"Synced {new_count} new, updated {updated_count} existing, "
-                    f"with {metrics_count} activities having detailed metrics from Garmin"
+                    f"with {metrics_count} activities having detailed metrics "
+                    f"and {splits_count} activities having splits data from Garmin"
                 )
                 logger.info(f"🔧 TOOL RESULT: sync_garmin_activities -> '{result}'")
                 return result
@@ -192,3 +215,233 @@ def register_tools(mcp):
             error_msg = f"Failed to sync activities: {str(e)}"
             logger.error(error_msg)
             return error_msg
+
+    @mcp.tool()
+    def update_workout_metadata(
+        activity_id: str,
+        is_intervals: str,
+        workout_structure: str,
+    ) -> str:
+        """
+        Record workout classification metadata for an activity.
+
+        Call this after syncing to label whether the workout was
+        interval-based and describe its structure.
+
+        Args:
+            activity_id: Garmin activity ID
+            is_intervals: "true" if interval workout, "false" if steady state
+            workout_structure: Description of the workout structure (e.g.
+                "5 x 3min threshold / 2min rest")
+
+        Returns:
+            Confirmation message
+        """
+        logger.info(
+            f"🔧 TOOL CALL: update_workout_metadata(activity_id={activity_id}, "
+            f"is_intervals={is_intervals}, "
+            f"workout_structure='{workout_structure}')"
+        )
+
+        db = SessionLocal()
+        try:
+            activity = db.query(Activity).filter(Activity.id == activity_id).first()
+            if not activity:
+                error_msg = f"Activity {activity_id} not found in database"
+                logger.error(error_msg)
+                return error_msg
+
+            activity.is_intervals = is_intervals
+            activity.workout_structure = workout_structure
+            db.commit()
+
+            result = (
+                f"Metadata saved for activity {activity_id}: "
+                f"intervals={is_intervals}, "
+                f"structure='{workout_structure}'"
+            )
+            logger.info(f"🔧 TOOL RESULT: update_workout_metadata -> '{result}'")
+            return result
+
+        except Exception as e:
+            db.rollback()
+            error_msg = f"Database error: {str(e)}"
+            logger.error(error_msg)
+            return error_msg
+        finally:
+            db.close()
+
+    @mcp.tool()
+    def analyze_hr_profile(activity_id: str = "22866136891") -> str:
+        """
+        Generate an HR profile analysis for an activity using Anthropic.
+
+        Creates an HR plot from metrics_data, sends it along with splits
+        and workout structure to Anthropic for analysis, and stores the
+        result in the database.
+
+        Args:
+            activity_id: Garmin activity ID (default: 22866136891)
+
+        Returns:
+            HR profile summary, splits data, and workout structure
+        """
+        logger.info(f"🔧 TOOL CALL: analyze_hr_profile(activity_id={activity_id})")
+
+        import io
+        import base64
+        import json
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        from matplotlib.ticker import MaxNLocator
+
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        if not api_key:
+            error_msg = "ANTHROPIC_API_KEY must be set in environment"
+            logger.error(error_msg)
+            return error_msg
+
+        db = SessionLocal()
+        try:
+            activity = db.query(Activity).filter(Activity.id == activity_id).first()
+            if not activity:
+                error_msg = f"Activity {activity_id} not found"
+                logger.error(error_msg)
+                return error_msg
+
+            if not activity.metrics_data:
+                error_msg = f"No metrics_data for activity {activity_id}"
+                logger.error(error_msg)
+                return error_msg
+
+            # --- Build HR plot in memory ---
+            hr_samples = []
+            for entry in activity.metrics_data:
+                hr = entry.get("directHeartRate")
+                elapsed = entry.get("sumElapsedDuration")
+                if hr is not None and hr > 0 and elapsed is not None:
+                    hr_samples.append((elapsed, int(hr)))
+
+            if not hr_samples:
+                error_msg = f"No HR samples found for activity {activity_id}"
+                logger.error(error_msg)
+                return error_msg
+
+            elapsed_times = [e for e, _ in hr_samples]
+            heart_rates = [hr for _, hr in hr_samples]
+
+            plt.figure(figsize=(14, 4), dpi=100)
+            plt.plot(elapsed_times, heart_rates, color="red", linewidth=2.5)
+            plt.xlabel("Elapsed Time (seconds)", fontsize=11, fontweight="bold")
+            plt.ylabel("Heart Rate (BPM)", fontsize=11, fontweight="bold")
+            plt.grid(True, linestyle="--", alpha=0.6, color="gray", axis="both")
+            ax = plt.gca()
+            ax.xaxis.set_major_locator(MaxNLocator(nbins=55))
+            plt.xticks(rotation=90)
+            plt.margins(x=0)
+            plt.tight_layout()
+
+            buf = io.BytesIO()
+            plt.savefig(buf, format="png", dpi=100)
+            buf.seek(0)
+            img_b64 = base64.b64encode(buf.read()).decode("utf-8")
+
+            # Also save to disk so user can see what the LLM sees
+            plot_path = f"/app/scripts/hr_plot_{activity_id}.png"
+            plt.savefig(plot_path, dpi=100)
+            logger.info(f"Saved HR plot to {plot_path}")
+
+            plt.close()
+
+            # --- Build prompt context ---
+            splits = activity.splits_data or {}
+            lap_dtos = splits.get("lapDTOs", [])
+            if lap_dtos:
+                # Build condensed splits summary
+                first_start = datetime.fromisoformat(lap_dtos[0]["startTimeGMT"])
+                lines = []
+                for lap in lap_dtos:
+                    lap_idx = lap.get("lapIndex", "?")
+                    lap_start = datetime.fromisoformat(lap["startTimeGMT"])
+                    rel_start = (lap_start - first_start).total_seconds()
+                    elapsed = lap.get("elapsedDuration", 0)
+                    rel_end = rel_start + elapsed
+                    avg_hr = lap.get("averageHR", "?")
+                    max_hr = lap.get("maxHR", "?")
+                    lines.append(
+                        f"Lap {lap_idx}: {rel_start:.0f}s-{rel_end:.0f}s "
+                        f"({elapsed:.0f}s)  HR avg={avg_hr}  max={max_hr}"
+                    )
+                splits_summary = "\n".join(lines)
+            else:
+                splits_summary = "No splits data"
+
+            structure = activity.workout_structure or "Not specified"
+
+            # --- Call Anthropic ---
+            from anthropic import Anthropic
+
+            client = Anthropic(api_key=api_key)
+            response = client.messages.create(
+                model="claude-sonnet-4-20250514",
+                max_tokens=2000,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image",
+                                "source": {
+                                    "type": "base64",
+                                    "media_type": "image/png",
+                                    "data": img_b64,
+                                },
+                            },
+                            {
+                                "type": "text",
+                                "text": (
+                                    "Here is the heart rate plot for a workout. "
+                                    f"Workout structure: {structure}\n\n"
+                                    f"Splits/lap data:\n{splits_summary}\n\n"
+                                    "Please provide a concise summary of the HR profile "
+                                    "over the course of the workout. Describe trends, "
+                                    "zones, recovery patterns, and how the HR response "
+                                    "lines up with each specific workout element "
+                                    "Refer to the workout elements by name and explain "
+                                    "how the heart rate behaves during each one."
+                                ),
+                            },
+                        ],
+                    }
+                ],
+            )
+
+            hr_profile = response.content[0].text
+
+            # --- Save to DB ---
+            activity.anthropic_hr_profile = hr_profile
+            db.commit()
+
+            # --- Return structured result ---
+            result = json.dumps(
+                {
+                    "hr_profile_summary": hr_profile,
+                    "splits_summary": splits_summary,
+                    "workout_structure": structure,
+                },
+                indent=2,
+            )
+            logger.info(
+                f"🔧 TOOL RESULT: analyze_hr_profile -> saved for {activity_id}"
+            )
+            return result
+
+        except Exception as e:
+            db.rollback()
+            error_msg = f"Analysis error: {str(e)}"
+            logger.error(error_msg)
+            return error_msg
+        finally:
+            db.close()
