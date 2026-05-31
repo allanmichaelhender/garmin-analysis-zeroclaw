@@ -1,4 +1,4 @@
-# Garmin Analysis
+# Analysing Allan
 
 An AI-powered Garmin activity analysis platform. Sync workouts from Garmin Connect, analyse heart rate profiles with Claude, and explore your training data through an MCP tool server.
 
