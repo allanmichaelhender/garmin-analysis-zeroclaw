@@ -47,7 +47,7 @@ export default function FlowDiagram() {
             <ArchCard
               small
               icon={Cloud}
-              label="garminconnect"
+              label="garminconnect API"
               sub="Activity Data"
               color="orange"
             />
@@ -61,7 +61,7 @@ export default function FlowDiagram() {
             <ArchCard
               small
               icon={Brain}
-              label="AI Visual"
+              label="AI Visual Analysis"
               sub="Sonnet 4.6"
               color="purple"
             />
@@ -69,7 +69,7 @@ export default function FlowDiagram() {
               small
               icon={Route}
               label="Strava API"
-              sub="Third-party"
+              sub="Cyling Power Data"
               color="orange"
             />
           </div>

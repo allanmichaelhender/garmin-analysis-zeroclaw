@@ -385,8 +385,23 @@ def register_tools(mcp):
 
             client = Anthropic(api_key=api_key)
             response = client.messages.create(
-                model="claude-sonnet-4-20250514",
+                model="claude-sonnet-4-6",
                 max_tokens=2000,
+                cache_control={"type": "ephemeral"},
+                system=[
+                    {
+                        "type": "text",
+                        "text": (
+                            "You are an expert exercise physiologist analyzing a heart rate plot. "
+                            "Given the HR plot, workout structure, and splits data, provide a "
+                            "concise summary of the HR profile over the course of the workout. "
+                            "Describe trends, zones, recovery patterns, and how the HR response "
+                            "lines up with each specific workout element. "
+                            "Refer to the workout elements by name and explain "
+                            "how the heart rate behaves during each one."
+                        ),
+                    }
+                ],
                 messages=[
                     {
                         "role": "user",
@@ -402,15 +417,8 @@ def register_tools(mcp):
                             {
                                 "type": "text",
                                 "text": (
-                                    "Here is the heart rate plot for a workout. "
                                     f"Workout structure: {structure}\n\n"
-                                    f"Splits/lap data:\n{splits_summary}\n\n"
-                                    "Please provide a concise summary of the HR profile "
-                                    "over the course of the workout. Describe trends, "
-                                    "zones, recovery patterns, and how the HR response "
-                                    "lines up with each specific workout element "
-                                    "Refer to the workout elements by name and explain "
-                                    "how the heart rate behaves during each one."
+                                    f"Splits/lap data:\n{splits_summary}"
                                 ),
                             },
                         ],
