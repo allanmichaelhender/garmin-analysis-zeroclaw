@@ -47,7 +47,7 @@ FastAPI server with an MCP (Model Context Protocol) interface exposing Garmin an
 | `analyze_hr_profile(id)`                               | Generates HR plot → sends to Anthropic Claude for visual analysis → saves HR profile   |
 | `get_activity_summary(id?, limit, type, hr_buckets)`   | Lists recent activities or returns full condensed view with stats, splits, and HR data |
 
-**Stack:** Python, FastAPI, FastMCP, SQLAlchemy, PostgreSQL (Neon), Garmin Connect API, Anthropic Claude, Matplotlib, Ruptures (changepoint detection)
+**Stack:** Python, FastAPI, FastMCP, SQLAlchemy, PostgreSQL (Neon), Garmin Connect API, Anthropic Claude, Matplotlib
 
 ### Frontend (`frontend/`)
 
@@ -144,7 +144,7 @@ garmin-analysis/
 │   │   ├── mcp/                # MCP tool server (FastMCP)
 │   │   ├── models/             # SQLAlchemy models
 │   │   ├── clients/            # External API clients (Garmin)
-│   │   ├── services/           # Business logic (changepoint detection)
+│   │   ├── services/           # Business logic (HR visual analysis)
 │   │   ├── core/               # Config, database setup
 │   │   └── tools/              # MCP tool implementations
 │   ├── scripts/                # Batch processing scripts

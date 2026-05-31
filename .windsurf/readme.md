@@ -24,7 +24,7 @@ garmin-analysis/
 │   │   │   └── analysis/  # Analysis tools
 │   │   ├── clients/  # Garmin Connect API client
 │   │   ├── models/   # SQLAlchemy models
-│   │   └── services/ # Changepoint detection service
+│   │   └── services/ # HR visual analysis service
 │   ├── alembic/      # Database migrations
 │   └── scripts/      # Data ingestion scripts
 ├── zeroclaw/         # ZeroClaw agent runtime
@@ -204,7 +204,7 @@ See `zeroclaw-integration.md` for detailed setup instructions.
 
 - **activities**: Garmin activity data with full metrics
 - **heart_rate_data**: Heart rate time series data
-- **activity_intervals**: Changepoint detection results for workout intervals
+- **activity_intervals**: Visual HR analysis results for workout intervals
 - **workout_metadata**: User-provided workout metadata (RPE, feeling, session structure)
 
 ## Development
@@ -236,15 +236,13 @@ curl http://localhost:8000/health
 - `GARMIN_PASSWORD`: Garmin Connect password
 - `LOG_LEVEL`: Logging level (default INFO)
 
-## Changepoint Detection
+## HR Visual Analysis
 
-The system includes changepoint detection to automatically segment workouts into intervals based on heart rate patterns:
+The system uses Anthropic Claude's vision capabilities to analyse heart rate profiles visually:
 
-- **Algorithm**: Uses ruptures library with PELT (Pruned Exact Linear Time) algorithm
-- **Detection**: Identifies statistical changes in heart rate data
-- **Parameters**: Adjustable penalty value (higher = fewer intervals, lower = more sensitive)
-- **Storage**: Detected intervals stored in `activity_intervals` table with HR statistics
-- **Usage**: Call `detect_activity_intervals` MCP tool with activity ID and penalty parameter
+- **Pipeline**: Generates an HR plot → sends to Claude for visual interpretation
+- **Analysis**: Claude maps HR response to specific workout elements (warmup, intervals, cooldown, etc.)
+- **Storage**: HR profile summaries stored in `activities` table as `anthropic_hr_profile`
 
 ## Troubleshooting
 

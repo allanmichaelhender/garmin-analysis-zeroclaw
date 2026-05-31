@@ -111,7 +111,7 @@ Implementation plan for building a Model Context Protocol (MCP) server that expo
 - [x] Design PostgreSQL schema for:
   - `activities` - Activity metadata and summaries
   - `heart_rate_data` - Time-series heart rate data
-  - `activity_intervals` - Changepoint detection results
+  - `activity_intervals` - Visual HR analysis results
   - `workout_metadata` - User-provided workout metadata (RPE, feeling, session structure)
 - [x] Create SQLAlchemy models
 - [x] Set up database initialization with Alembic
@@ -190,8 +190,8 @@ When MCP connections fail:
 - ✅ PostgreSQL database schema with activities table
 - ✅ Neon PostgreSQL database integration
 - ✅ pgAdmin service for database management
-- ✅ Changepoint detection service using ruptures library
-- ✅ Activity interval detection MCP tool
+- ✅ HR visual analysis service using Anthropic Claude vision
+- ✅ HR profile analysis MCP tool
 - ✅ Workout metadata tools for RPE, feeling, and session structure
 - ✅ Modular MCP architecture with separate tool modules (garmin, workout, analysis)
 - ✅ Database initialization via Alembic migrations
@@ -216,14 +216,11 @@ When MCP connections fail:
 - [x] Implement `get_activity_samples()` method for heart rate data
 - [x] Test authentication with Garmin Connect
 
-### 2.2 Changepoint Detection Service
+### 2.2 HR Visual Analysis Service
 
-- [x] Create `backend/app/services/changepoint_detection.py` using ruptures library
-- [x] Implement PELT algorithm for interval detection
-- [x] Add configurable penalty parameter for sensitivity
-- [x] Implement signal smoothing for noise reduction
-- [x] Add multivariate detection support (HR + cadence + power)
-- [x] Test on indoor cardio activity
+- [x] Create HR plot generation for activity data
+- [x] Integrate with Anthropic Claude vision API for visual analysis
+- [x] Store structured HR profile narratives in database
 
 ---
 
@@ -414,7 +411,7 @@ When MCP connections fail:
 - [x] PostgreSQL queries work
 - [x] Error handling works properly
 - [x] HR data extraction from Garmin API works
-- [x] Changepoint detection works with ruptures library
+- [x] HR profile visual analysis works with Claude
 - [ ] HR data aggregation works
 
 ### Data Ingestion
@@ -445,7 +442,7 @@ When MCP connections fail:
 - Never commit `.env` file to version control
 - ZeroClaw supports 30+ channels - configure as needed
 - **zeroclaw-web/** directory contains the full ZeroClaw repository for reference/customization
-- Changepoint detection uses ruptures library with PELT algorithm
+- HR profile analysis uses Claude vision API for HR plot interpretation
 - Garmin API requires authentication and has rate limits (429 errors)
 - Heart rate data extracted from Garmin activityDetailMetrics at index 2 (directHeartRate)
 - Activity intervals stored in activity_intervals table with HR statistics
